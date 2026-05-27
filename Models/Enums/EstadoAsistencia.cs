@@ -4,7 +4,10 @@ using System.Text;
 
 namespace SistemaAsistenciaEscolar.Models.Enums
 {
-    internal class EstadoAsistencia
+    public enum EstadoAsistencia
     {
+        Presente,
+        Ausente,
+        Excusa
     }
 }

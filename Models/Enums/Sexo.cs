@@ -4,7 +4,9 @@ using System.Text;
 
 namespace SistemaAsistenciaEscolar.Models.Enums
 {
-    internal class Sexo
+    public enum Sexo
     {
+        Masculino,
+        Femenino,
     }
 }
