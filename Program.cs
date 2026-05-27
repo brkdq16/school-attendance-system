@@ -1,1 +1,5 @@
-﻿Console.WriteLine("Hello, World!");
+﻿using SistemaAsistenciaEscolar.UI;
+
+Menu menu = new Menu();
+
+menu.Mostrar();
