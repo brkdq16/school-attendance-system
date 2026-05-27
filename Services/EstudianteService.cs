@@ -1,4 +1,5 @@
 ﻿using SistemaAsistenciaEscolar.Models.Entities;
+using SistemaAsistenciaEscolar.Data;
 
 namespace SistemaAsistenciaEscolar.Services
 {
@@ -6,21 +7,29 @@ namespace SistemaAsistenciaEscolar.Services
     {
         private List<Estudiante> estudiantes;
 
+        private JsonStorage storage;
+
+        private string rutaArchivo = "estudiantes.json";
+
         // CONSTRUCTOR
 
         public EstudianteService()
         {
-            estudiantes = new List<Estudiante>();
+            storage = new JsonStorage();
+
+            estudiantes = storage.Cargar<Estudiante>(rutaArchivo);
         }
 
-        // CREATE
+        // AGREGAR
 
         public void AgregarEstudiante(Estudiante estudiante)
         {
             estudiantes.Add(estudiante);
+
+            storage.Guardar(rutaArchivo, estudiantes);
         }
 
-        // READ
+        // OBTENER TODOS
 
         public List<Estudiante> ObtenerEstudiantes()
         {
@@ -31,42 +40,12 @@ namespace SistemaAsistenciaEscolar.Services
 
         public Estudiante BuscarPorId(int id)
         {
-            foreach (Estudiante estudiante in estudiantes)
-            {
-                if (estudiante.Id == id)
-                {
-                    return estudiante;
-                }
-            }
-
-            return null;
+            return estudiantes.FirstOrDefault(e => e.Id == id);
         }
 
-        // UPDATE
+        // ELIMINAR
 
-        public bool EditarEstudiante(
-            int id,
-            string nuevoNombre,
-            string nuevoApellido,
-            Aula nuevaAula)
-        {
-            Estudiante estudiante = BuscarPorId(id);
-
-            if (estudiante != null)
-            {
-                estudiante.Nombre = nuevoNombre;
-                estudiante.Apellido = nuevoApellido;
-                estudiante.Aula = nuevaAula;
-
-                return true;
-            }
-
-            return false;
-        }
-
-        // DELETE
-
-        public bool EliminarEstudiante(int id)
+        public void EliminarEstudiante(int id)
         {
             Estudiante estudiante = BuscarPorId(id);
 
@@ -74,10 +53,26 @@ namespace SistemaAsistenciaEscolar.Services
             {
                 estudiantes.Remove(estudiante);
 
-                return true;
+                storage.Guardar(rutaArchivo, estudiantes);
             }
+        }
 
-            return false;
+        // EDITAR
+
+        public void EditarEstudiante(
+            int id,
+            string nombre,
+            string apellido)
+        {
+            Estudiante estudiante = BuscarPorId(id);
+
+            if (estudiante != null)
+            {
+                estudiante.Nombre = nombre;
+                estudiante.Apellido = apellido;
+
+                storage.Guardar(rutaArchivo, estudiantes);
+            }
         }
     }
 }

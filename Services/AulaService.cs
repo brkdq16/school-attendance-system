@@ -1,5 +1,5 @@
 ﻿using SistemaAsistenciaEscolar.Models.Entities;
-using System;
+using SistemaAsistenciaEscolar.Data;
 
 namespace SistemaAsistenciaEscolar.Services
 {
@@ -7,19 +7,29 @@ namespace SistemaAsistenciaEscolar.Services
     {
         private List<Aula> aulas;
 
+        private JsonStorage storage;
+
+        private string rutaArchivo = "aulas.json";
+
+        // CONSTRUCTOR
+
         public AulaService()
         {
-            aulas = new List<Aula>();
+            storage = new JsonStorage();
+
+            aulas = storage.Cargar<Aula>(rutaArchivo);
         }
 
-        // CREATE
+        // AGREGAR
 
         public void AgregarAula(Aula aula)
         {
             aulas.Add(aula);
+
+            storage.Guardar(rutaArchivo, aulas);
         }
 
-        // READ
+        // OBTENER TODAS
 
         public List<Aula> ObtenerAulas()
         {
@@ -30,20 +40,26 @@ namespace SistemaAsistenciaEscolar.Services
 
         public Aula BuscarPorId(int id)
         {
-            foreach (Aula aula in aulas)
-            {
-                if (aula.Id == id)
-                {
-                    return aula;
-                }
-            }
-
-            return null;
+            return aulas.FirstOrDefault(a => a.Id == id);
         }
 
-        // UPDATE
+        // ELIMINAR
 
-        public bool EditarAula(int id, string nuevoNombre, int nuevaCapacidad)
+        public void EliminarAula(int id)
+        {
+            Aula aula = BuscarPorId(id);
+
+            if (aula != null)
+            {
+                aulas.Remove(aula);
+
+                storage.Guardar(rutaArchivo, aulas);
+            }
+        }
+
+        // EDITAR
+
+        public void EditarAula(int id, string nuevoNombre, int nuevaCapacidad)
         {
             Aula aula = BuscarPorId(id);
 
@@ -52,26 +68,8 @@ namespace SistemaAsistenciaEscolar.Services
                 aula.Nombre = nuevoNombre;
                 aula.Capacidad = nuevaCapacidad;
 
-                return true;
+                storage.Guardar(rutaArchivo, aulas);
             }
-
-            return false;
-        }
-
-        // DELETE
-
-        public bool EliminarAula(int id)
-        {
-            Aula aula = BuscarPorId(id);
-
-            if (aula != null)
-            {
-                aulas.Remove(aula);
-
-                return true;
-            }
-
-            return false;
         }
     }
 }

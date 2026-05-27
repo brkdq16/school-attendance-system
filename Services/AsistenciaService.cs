@@ -1,112 +1,69 @@
 ﻿using SistemaAsistenciaEscolar.Models.Entities;
 using SistemaAsistenciaEscolar.Models.Enums;
+using SistemaAsistenciaEscolar.Data;
 
 namespace SistemaAsistenciaEscolar.Services
 {
     public class AsistenciaService
     {
-        private List<RegistroAsistencia> registros;
+        private List<RegistroAsistencia> asistencias;
+
+        private JsonStorage storage;
+
+        private string rutaArchivo = "asistencias.json";
 
         // CONSTRUCTOR
 
         public AsistenciaService()
         {
-            registros = new List<RegistroAsistencia>();
+            storage = new JsonStorage();
+
+            asistencias = storage.Cargar<RegistroAsistencia>(rutaArchivo);
         }
 
         // REGISTRAR ASISTENCIA
 
-        public void RegistrarAsistencia(RegistroAsistencia registro)
+        public void RegistrarAsistencia(RegistroAsistencia asistencia)
         {
-            registros.Add(registro);
+            asistencias.Add(asistencia);
+
+            storage.Guardar(rutaArchivo, asistencias);
         }
 
-        // OBTENER TODOS LOS REGISTROS
+        // OBTENER TODAS
 
-        public List<RegistroAsistencia> ObtenerRegistros()
+        public List<RegistroAsistencia> ObtenerAsistencias()
         {
-            return registros;
+            return asistencias;
         }
 
         // CONSULTAR POR FECHA
 
         public List<RegistroAsistencia> ConsultarPorFecha(DateTime fecha)
         {
-            List<RegistroAsistencia> resultados = new List<RegistroAsistencia>();
-
-            foreach (RegistroAsistencia registro in registros)
-            {
-                if (registro.Fecha.Date == fecha.Date)
-                {
-                    resultados.Add(registro);
-                }
-            }
-
-            return resultados;
-        }
-
-        // CONSULTAR AUSENTES
-
-        public List<RegistroAsistencia> ObtenerAusentes()
-        {
-            List<RegistroAsistencia> ausentes = new List<RegistroAsistencia>();
-
-            foreach (RegistroAsistencia registro in registros)
-            {
-                if (registro.Estado == EstadoAsistencia.Ausente)
-                {
-                    ausentes.Add(registro);
-                }
-            }
-
-            return ausentes;
+            return asistencias
+                .Where(a => a.Fecha.Date == fecha.Date)
+                .ToList();
         }
 
         // ESTADÍSTICAS
 
         public int TotalPresentes()
         {
-            int total = 0;
-
-            foreach (RegistroAsistencia registro in registros)
-            {
-                if (registro.Estado == EstadoAsistencia.Presente)
-                {
-                    total++;
-                }
-            }
-
-            return total;
+            return asistencias.Count(a =>
+                a.Estado == EstadoAsistencia.Presente);
         }
-       
+
         public int TotalAusentes()
         {
-            int total = 0;
-
-            foreach (RegistroAsistencia registro in registros)
-            {
-                if (registro.Estado == EstadoAsistencia.Ausente)
-                {
-                    total++;
-                }
-            }
-
-            return total;
+            return asistencias.Count(a =>
+                a.Estado == EstadoAsistencia.Ausente);
         }
 
         public int TotalConExcusa()
         {
-            int total = 0;
-
-            foreach (RegistroAsistencia registro in registros)
-            {
-                if (!string.IsNullOrWhiteSpace(registro.Excusa))
-                {
-                    total++;
-                }
-            }
-
-            return total;
+            return asistencias.Count(a =>
+                !string.IsNullOrWhiteSpace(a.Excusa));
         }
     }
 }
