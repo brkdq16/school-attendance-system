@@ -9,7 +9,7 @@ namespace SistemaAsistenciaEscolar.Models.Entities
     public abstract class  Persona
     {
         // PROPIEDADES
-        public int id { get; set; }
+        public int Id { get; set; }
         public string Nombre { get; set; }
         public string Apellido { get; set; }
         public Sexo Sexo { get; set; }
@@ -18,7 +18,7 @@ namespace SistemaAsistenciaEscolar.Models.Entities
         // CONSTRUCTOR
         protected Persona(int id, string nombre, string apellido, Sexo sexo, DateTime FechaNacimiento)
         {
-            this.id = id;
+            this.Id = id;
             this.Nombre = nombre;
             this.Apellido = apellido;
             this.Sexo = sexo;
