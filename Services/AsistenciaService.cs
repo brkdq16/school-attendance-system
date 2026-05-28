@@ -1,43 +1,44 @@
-﻿using SistemaAsistenciaEscolar.Models.Entities;
+﻿using SistemaAsistenciaEscolar.Data;
+using SistemaAsistenciaEscolar.Models.Entities;
 using SistemaAsistenciaEscolar.Models.Enums;
-using SistemaAsistenciaEscolar.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SistemaAsistenciaEscolar.Services
 {
     public class AsistenciaService
     {
         private List<RegistroAsistencia> asistencias;
-
         private JsonStorage storage;
-
         private string rutaArchivo = "asistencias.json";
-
-        // CONSTRUCTOR
 
         public AsistenciaService()
         {
             storage = new JsonStorage();
-
-            asistencias = storage.Cargar<RegistroAsistencia>(rutaArchivo);
+            asistencias = storage.Load<RegistroAsistencia>(rutaArchivo);
         }
-
-        // REGISTRAR ASISTENCIA
 
         public void RegistrarAsistencia(RegistroAsistencia asistencia)
         {
+            bool existe = asistencias.Any(a =>
+                a.Estudiante.Id == asistencia.Estudiante.Id &&
+                a.Fecha.Date == asistencia.Fecha.Date);
+
+            if (existe)
+            {
+                Console.WriteLine(" Ya existe asistencia para este estudiante en esa fecha.");
+                return;
+            }
+
             asistencias.Add(asistencia);
-
-            storage.Guardar(rutaArchivo, asistencias);
+            storage.Save(rutaArchivo, asistencias);
         }
-
-        // OBTENER TODAS
 
         public List<RegistroAsistencia> ObtenerAsistencias()
         {
             return asistencias;
         }
-
-        // CONSULTAR POR FECHA
 
         public List<RegistroAsistencia> ConsultarPorFecha(DateTime fecha)
         {
@@ -46,24 +47,21 @@ namespace SistemaAsistenciaEscolar.Services
                 .ToList();
         }
 
-        // ESTADÍSTICAS
-
         public int TotalPresentes()
         {
-            return asistencias.Count(a =>
-                a.Estado == EstadoAsistencia.Presente);
+            return asistencias.Count(a => a.Estado == EstadoAsistencia.Presente);
         }
 
         public int TotalAusentes()
         {
-            return asistencias.Count(a =>
-                a.Estado == EstadoAsistencia.Ausente);
+            return asistencias.Count(a => a.Estado == EstadoAsistencia.Ausente);
         }
 
         public int TotalConExcusa()
         {
             return asistencias.Count(a =>
-                !string.IsNullOrWhiteSpace(a.Excusa));
+                a.Estado == EstadoAsistencia.Ausente &&
+                !string.IsNullOrEmpty(a.Excusa));
         }
     }
 }

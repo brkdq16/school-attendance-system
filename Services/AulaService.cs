@@ -1,4 +1,7 @@
-﻿using SistemaAsistenciaEscolar.Models.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using SistemaAsistenciaEscolar.Models.Entities;
 using SistemaAsistenciaEscolar.Data;
 
 namespace SistemaAsistenciaEscolar.Services
@@ -6,44 +9,42 @@ namespace SistemaAsistenciaEscolar.Services
     public class AulaService
     {
         private List<Aula> aulas;
-
         private JsonStorage storage;
-
         private string rutaArchivo = "aulas.json";
-
-        // CONSTRUCTOR
 
         public AulaService()
         {
             storage = new JsonStorage();
-
-            aulas = storage.Cargar<Aula>(rutaArchivo);
+            aulas = storage.Load<Aula>(rutaArchivo);
         }
-
-        // AGREGAR
 
         public void AgregarAula(Aula aula)
         {
+            if (aulas.Any(a => a.Id == aula.Id))
+            {
+                Console.WriteLine("⚠ Ya existe un aula con ese ID.");
+                return;
+            }
+
+            if (aulas.Any(a => a.Nombre == aula.Nombre))
+            {
+                Console.WriteLine("⚠ Ya existe un aula con ese nombre.");
+                return;
+            }
+
             aulas.Add(aula);
-
-            storage.Guardar(rutaArchivo, aulas);
+            storage.Save(rutaArchivo, aulas);
         }
-
-        // OBTENER TODAS
 
         public List<Aula> ObtenerAulas()
         {
             return aulas;
         }
 
-        // BUSCAR POR ID
-
         public Aula BuscarPorId(int id)
         {
             return aulas.FirstOrDefault(a => a.Id == id);
         }
-
-        // ELIMINAR
 
         public void EliminarAula(int id)
         {
@@ -52,12 +53,9 @@ namespace SistemaAsistenciaEscolar.Services
             if (aula != null)
             {
                 aulas.Remove(aula);
-
-                storage.Guardar(rutaArchivo, aulas);
+                storage.Save(rutaArchivo, aulas);
             }
         }
-
-        // EDITAR
 
         public void EditarAula(int id, string nuevoNombre, int nuevaCapacidad)
         {
@@ -68,7 +66,7 @@ namespace SistemaAsistenciaEscolar.Services
                 aula.Nombre = nuevoNombre;
                 aula.Capacidad = nuevaCapacidad;
 
-                storage.Guardar(rutaArchivo, aulas);
+                storage.Save(rutaArchivo, aulas);
             }
         }
     }
