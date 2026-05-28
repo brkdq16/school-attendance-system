@@ -6,13 +6,9 @@ namespace SistemaAsistenciaEscolar.UI
 {
     public class Menu
     {
-        // SERVICES
-
         private AulaService aulaService;
         private EstudianteService estudianteService;
         private AsistenciaService asistenciaService;
-
-        // CONSTRUCTOR
 
         public Menu()
         {
@@ -21,105 +17,162 @@ namespace SistemaAsistenciaEscolar.UI
             asistenciaService = new AsistenciaService();
         }
 
-        // MÉTODO PRINCIPAL DEL MENÚ
-
         public void Mostrar()
         {
-            bool continuar = true;
+            string opcion;
 
-            while (continuar)
+            do
             {
                 Console.Clear();
+                Console.WriteLine("===== SISTEMA ASISTENCIA ESCOLAR =====");
+                Console.WriteLine("1. Gestión de Aulas");
+                Console.WriteLine("2. Gestión de Estudiantes");
+                Console.WriteLine("3. Gestión de Asistencia");
+                Console.WriteLine("4. Salir");
+                Console.Write("Opción: ");
 
-                Console.WriteLine("===== SISTEMA DE ASISTENCIA ESCOLAR =====");
-                Console.WriteLine("1. Registrar aula");
-                Console.WriteLine("2. Listar aulas");
-                Console.WriteLine("3. Registrar estudiante");
-                Console.WriteLine("4. Listar estudiantes");
-                Console.WriteLine("5. Salir");
-
-                Console.Write("Seleccione una opción: ");
-
-                string opcion = Console.ReadLine();
+                opcion = Console.ReadLine();
 
                 switch (opcion)
                 {
                     case "1":
-                        RegistrarAula();
+                        MenuAulas();
                         break;
 
                     case "2":
-                        ListarAulas();
+                        MenuEstudiantes();
                         break;
 
                     case "3":
-                        RegistrarEstudiante();
-                        break;
-
-                    case "4":
-                        ListarEstudiantes();
-                        break;
-
-                    case "5":
-                        continuar = false;
-                        break;
-
-                    default:
-                        Console.WriteLine("Opción inválida.");
+                        MenuAsistencia();
                         break;
                 }
 
-                Console.WriteLine("\nPresione una tecla para continuar...");
-                Console.ReadKey();
+            } while (opcion != "4");
+        }
+
+        // =========================
+        // AULAS
+        // =========================
+
+        private void MenuAulas()
+        {
+            Console.Clear();
+            Console.WriteLine("===== AULAS =====");
+            Console.WriteLine("1. Crear");
+            Console.WriteLine("2. Listar");
+            Console.WriteLine("3. Editar");
+            Console.WriteLine("4. Eliminar");
+            Console.WriteLine("0. Volver");
+            Console.Write("Opción: ");
+
+            string op = Console.ReadLine();
+
+            switch (op)
+            {
+                case "1":
+                    CrearAula();
+                    break;
+
+                case "2":
+                    ListarAulas();
+                    break;
+
+                case "3":
+                    EditarAula();
+                    break;
+
+                case "4":
+                    EliminarAula();
+                    break;
             }
         }
 
-        // REGISTRAR AULA
-
-        private void RegistrarAula()
+        private void CrearAula()
         {
-            Console.Write("ID del aula: ");
+            Console.Write("ID: ");
             int id = int.Parse(Console.ReadLine());
 
-            Console.Write("Nombre del aula: ");
+            Console.Write("Nombre: ");
             string nombre = Console.ReadLine();
 
             Console.Write("Capacidad: ");
             int capacidad = int.Parse(Console.ReadLine());
 
-            Aula aula = new Aula(id, nombre, capacidad);
+            aulaService.AgregarAula(new Aula(id, nombre, capacidad));
 
-            aulaService.AgregarAula(aula);
-
-            Console.WriteLine("Aula registrada correctamente.");
+            Console.WriteLine("Aula creada.");
+            Console.ReadKey();
         }
-
-        // LISTAR AULAS
 
         private void ListarAulas()
         {
-            List<Aula> aulas = aulaService.ObtenerAulas();
-
-            if (aulas.Count == 0)
+            foreach (var a in aulaService.ObtenerAulas())
             {
-                Console.WriteLine("No hay aulas registradas.");
-                return;
+                Console.WriteLine($"{a.Id} - {a.Nombre} - {a.Capacidad}");
             }
+            Console.ReadKey();
+        }
 
-            foreach (Aula aula in aulas)
+        private void EditarAula()
+        {
+            Console.Write("ID: ");
+            int id = int.Parse(Console.ReadLine());
+
+            Console.Write("Nuevo nombre: ");
+            string nombre = Console.ReadLine();
+
+            Console.Write("Nueva capacidad: ");
+            int cap = int.Parse(Console.ReadLine());
+
+            aulaService.EditarAula(id, nombre, cap);
+
+            Console.WriteLine("Actualizado.");
+            Console.ReadKey();
+        }
+
+        private void EliminarAula()
+        {
+            Console.Write("ID: ");
+            int id = int.Parse(Console.ReadLine());
+
+            aulaService.EliminarAula(id);
+
+            Console.WriteLine("Eliminado.");
+            Console.ReadKey();
+        }
+
+        // =========================
+        // ESTUDIANTES
+        // =========================
+
+        private void MenuEstudiantes()
+        {
+            Console.Clear();
+            Console.WriteLine("===== ESTUDIANTES =====");
+            Console.WriteLine("1. Crear");
+            Console.WriteLine("2. Listar");
+            Console.WriteLine("3. Editar");
+            Console.WriteLine("4. Eliminar");
+            Console.WriteLine("0. Volver");
+
+            string op = Console.ReadLine();
+
+            switch (op)
             {
-                Console.WriteLine($"ID: {aula.Id}");
-                Console.WriteLine($"Nombre: {aula.Nombre}");
-                Console.WriteLine($"Capacidad: {aula.Capacidad}");
-                Console.WriteLine("----------------------------");
+                case "1":
+                    RegistrarEstudiante();
+                    break;
+
+                case "2":
+                    ListarEstudiantes();
+                    break;
             }
         }
 
-        // REGISTRAR ESTUDIANTE
-
         private void RegistrarEstudiante()
         {
-            Console.Write("ID del estudiante: ");
+            Console.Write("ID: ");
             int id = int.Parse(Console.ReadLine());
 
             Console.Write("Nombre: ");
@@ -131,73 +184,51 @@ namespace SistemaAsistenciaEscolar.UI
             Console.Write("Matrícula: ");
             string matricula = Console.ReadLine();
 
-            Console.Write("Fecha de nacimiento (yyyy-mm-dd): ");
-            DateTime fechaNacimiento = DateTime.Parse(Console.ReadLine());
+            Console.Write("Fecha nacimiento (yyyy-mm-dd): ");
+            DateTime fecha = DateTime.Parse(Console.ReadLine());
 
-            Console.Write("Sexo (1 = Masculino, 2 = Femenino): ");
-            int opcionSexo = int.Parse(Console.ReadLine());
+            Console.Write("Sexo (1 M / 2 F): ");
+            Sexo sexo = (Console.ReadLine() == "1") ? Sexo.Masculino : Sexo.Femenino;
 
-            Sexo sexo;
-
-            if (opcionSexo == 1)
-            {
-                sexo = Sexo.Masculino;
-            }
-            else
-            {
-                sexo = Sexo.Femenino;
-            }
-
-            // MOSTRAR AULAS DISPONIBLES
-
-            ListarAulas();
-
-            Console.Write("ID del aula: ");
+            Console.Write("ID Aula: ");
             int aulaId = int.Parse(Console.ReadLine());
 
             Aula aula = aulaService.BuscarPorId(aulaId);
 
-            if (aula == null)
-            {
-                Console.WriteLine("Aula no encontrada.");
-                return;
-            }
-
-            Estudiante estudiante = new Estudiante(
-                id,
-                nombre,
-                apellido,
-                sexo,
-                fechaNacimiento,
-                matricula,
-                aula
+            estudianteService.AgregarEstudiante(
+                new Estudiante(id, nombre, apellido, sexo, fecha, matricula, aula)
             );
 
-            estudianteService.AgregarEstudiante(estudiante);
-
-            Console.WriteLine("Estudiante registrado correctamente.");
+            Console.WriteLine("Estudiante creado.");
+            Console.ReadKey();
         }
-
-        // LISTAR ESTUDIANTES
 
         private void ListarEstudiantes()
         {
-            List<Estudiante> estudiantes = estudianteService.ObtenerEstudiantes();
-
-            if (estudiantes.Count == 0)
+            foreach (var e in estudianteService.ObtenerEstudiantes())
             {
-                Console.WriteLine("No hay estudiantes registrados.");
-                return;
+                Console.WriteLine($"{e.Id} - {e.ObtenerNombreCompleto()} - {e.Matricula}");
             }
+            Console.ReadKey();
+        }
 
-            foreach (Estudiante estudiante in estudiantes)
+        // =========================
+        // ASISTENCIA (base)
+        // =========================
+
+        private void MenuAsistencia()
+        {
+            Console.Clear();
+            Console.WriteLine("===== ASISTENCIA =====");
+            Console.WriteLine("1. Registrar");
+            Console.WriteLine("2. Consultar por fecha");
+            Console.WriteLine("3. Estadísticas");
+
+            string op = Console.ReadLine();
+
+            if (op == "1")
             {
-                Console.WriteLine($"ID: {estudiante.Id}");
-                Console.WriteLine($"Nombre: {estudiante.ObtenerNombreCompleto()}");
-                Console.WriteLine($"Edad: {estudiante.ObtenerEdad()}");
-                Console.WriteLine($"Matrícula: {estudiante.Matricula}");
-                Console.WriteLine($"Aula: {estudiante.Aula.Nombre}");
-                Console.WriteLine("----------------------------");
+                Console.WriteLine("Aquí conectarás RegistroAsistencia");
             }
         }
     }
